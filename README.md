@@ -1,318 +1,409 @@
 # FT-Echo TCP File Transfer Project
 
-A complete implementation of the FT-Echo protocol for TCP-based file transfer with support for LIST, GET, PUT, and RESUME operations. Includes a TCP server, client library, CLI client, FastAPI HTTP wrapper, and React frontend.
+A complete implementation of the **FT-Echo protocol** for TCP-based file transfer with support for:
 
-## Project Structure
+- LIST  
+- GET  
+- PUT  
+- RESUME  
 
-```
-ft-echo-project/
-├── README.md
-├── transcript.txt          # Test run transcript
-├── server/
-│   ├── tcp_server.py      # Async TCP FT-Echo server
-│   ├── tcp_client_lib.py  # Synchronous client library
-│   ├── cli_client.py      # CLI for manual testing
-│   ├── fastapi_app.py     # FastAPI HTTP wrapper
-│   ├── requirements.txt   # Python dependencies
-│   └── logs/              # Server logs
-├── frontend/
-│   ├── package.json
-│   └── src/               # React application
-├── demo_scripts/
-│   ├── run_tests.sh       # Automated test script
-│   └── demo_commands.txt  # Manual test commands
-└── storage/                # Server file storage
-```
+Includes:
 
-## FT-Echo Protocol Specification
+- Async TCP server  
+- Synchronous client library  
+- CLI client  
+- FastAPI HTTP wrapper  
+- React frontend  
+
+Built for learning **Computer Networks**, socket programming, and real-world file transfer systems.
+
+---
+
+## 📁 Project Structure
+
+ft-echo-project/  
+├── README.md  
+├── transcript.txt          # Test run transcript  
+├── server/  
+│   ├── tcp_server.py      # Async TCP FT-Echo server  
+│   ├── tcp_client_lib.py  # Synchronous client library  
+│   ├── cli_client.py      # CLI for manual testing  
+│   ├── fastapi_app.py     # FastAPI HTTP wrapper  
+│   ├── requirements.txt   # Python dependencies  
+│   └── logs/              # Server logs  
+├── frontend/  
+│   ├── package.json  
+│   └── src/               # React application  
+├── demo_scripts/  
+│   ├── run_tests.sh       # Automated test script  
+│   └── demo_commands.txt  # Manual test commands  
+└── storage/               # Server file storage  
+
+---
+
+## 📜 FT-Echo Protocol Specification
 
 ### Message Format
+
 Every message follows this structure:
-- **4 bytes**: Big-endian uint32 length (N)
-- **1 byte**: ASCII message type
-- **(N-1) bytes**: Payload
+
+- 4 bytes: Big-endian uint32 length (N)  
+- 1 byte: ASCII message type  
+- (N - 1) bytes: Payload  
+
+---
 
 ### Message Types
-- **L** (LIST): Request file listing
-- **G** (GET): Download a file
-- **P** (PUT): Upload a file
-- **R** (RESUME): Resume interrupted transfer
-- **Q** (QUIT): Disconnect
-- **O** (OK): Success response
-- **E** (ERROR): Error response
-- **F** (FILE): File data chunk
-- **S** (SHA256): Checksum (hex digest)
 
-### Protocol Flow
+| Type | Meaning |
+|------|--------|
+| L | LIST |
+| G | GET |
+| P | PUT |
+| R | RESUME |
+| Q | QUIT |
+| O | OK |
+| E | ERROR |
+| F | FILE |
+| S | SHA256 |
 
-#### LIST (L)
-1. Client sends: `L` (no payload)
-2. Server responds: `O` + newline-separated list (`filename|size\n`)
+---
 
-#### GET (G)
-1. Client sends: `G` + filename (UTF-8)
-2. Server responds: `O` + metadata (JSON: `{"size": N}`)
-3. Server sends: Multiple `F` chunks (file data)
-4. Server sends: `S` + SHA256 hex digest
+## 🔁 Protocol Flow
 
-#### PUT (P)
-1. Client sends: `P` + metadata (JSON: `{"filename": "...", "size": N}`)
-2. Server responds: `O` + "Ready to receive"
-3. Client sends: Multiple `F` chunks (file data)
-4. Server responds: `O` + SHA256 hex digest
+### LIST (L)
 
-#### RESUME (R)
-1. Client sends: `R` + `filename|offset|direction`
-2. Server verifies partial file exists
-3. Transfer continues from offset
-4. Same flow as GET/PUT but starting from offset
+Client:  
+L  
 
-## Installation
+Server:  
+O + filename|size\n  
+
+---
+
+### GET (G)
+
+Client:  
+G + filename  
+
+Server:  
+O + {"size": N}  
+F + file chunks  
+S + SHA256 checksum  
+
+---
+
+### PUT (P)
+
+Client:  
+P + {"filename": "...", "size": N}  
+
+Server:  
+O + Ready to receive  
+
+Client:  
+F + file chunks  
+
+Server:  
+O + SHA256 checksum  
+
+---
+
+### RESUME (R)
+
+Client:  
+R + filename|offset|direction  
+
+Server verifies `.part` file  
+Transfer resumes from offset  
+
+---
+
+## 🛠 Installation
 
 ### Prerequisites
-- Python 3.10+
-- Node.js 16+ and npm
-- Bash (for test scripts on Unix-like systems)
+
+- Python 3.10+  
+- Node.js 16+  
+- npm  
+- Bash (Unix-like systems)  
+
+---
 
 ### Python Dependencies
-```bash
-cd server
-pip install -r requirements.txt
-```
+
+cd server  
+pip install -r requirements.txt  
+
+---
 
 ### React Frontend
-```bash
-cd frontend
-npm install
-```
 
-## Usage
+cd frontend  
+npm install  
+
+---
+
+## ▶️ Usage
+
+---
 
 ### 1. Start the TCP Server
 
-**Linux/macOS:**
-```bash
-cd server
-python3 tcp_server.py [port]
-```
+Linux / macOS:
 
-**Windows:**
-```cmd
-cd server
-python tcp_server.py [port]
-```
+cd server  
+python3 tcp_server.py [port]  
 
-Default port: 9000
+Windows:
 
-The server will:
-- Listen on all interfaces (0.0.0.0)
-- Store files in `../storage/` directory
-- Log to `logs/server.log`
+cd server  
+python tcp_server.py [port]  
 
-### 2. Use the CLI Client
+Default port: 9000  
 
-**Linux/macOS:**
-```bash
-cd server
-python3 cli_client.py
-```
+Server behavior:
 
-**Windows:**
-```cmd
-cd server
-python cli_client.py
-```
+- Listens on 0.0.0.0  
+- Stores files in ../storage/  
+- Logs to logs/server.log  
 
-Interactive commands:
-- `connect <host> <port>` - Connect to server
-- `list` - List files on server
-- `get <filename> [dest_path]` - Download a file
-- `put <filepath>` - Upload a file
-- `resume <file> <offset> <direction>` - Resume transfer (direction: get|put)
-- `quit` - Disconnect and exit
+---
+
+### 2. CLI Client
+
+Linux / macOS:
+
+cd server  
+python3 cli_client.py  
+
+Windows:
+
+cd server  
+python cli_client.py  
+
+Commands:
+
+connect <host> <port>  
+list  
+get <filename> [dest_path]  
+put <filepath>  
+resume <file> <offset> <direction>  
+quit  
 
 Example:
-```bash
-ft-echo> connect localhost 9000
-ft-echo> list
-ft-echo> put ../demo_data/test.txt
-ft-echo> get test.txt downloaded_test.txt
-ft-echo> quit
-```
 
-### 3. Use the FastAPI HTTP Wrapper
+ft-echo> connect localhost 9000  
+ft-echo> list  
+ft-echo> put ../demo_data/test.txt  
+ft-echo> get test.txt downloaded_test.txt  
+ft-echo> quit  
 
-Start the HTTP server:
+---
 
-**Linux/macOS:**
-```bash
-cd server
-python3 fastapi_app.py
-```
+### 3. FastAPI HTTP Wrapper
 
-**Windows:**
-```cmd
-cd server
-python fastapi_app.py
-```
+Linux / macOS:
 
-Or with uvicorn (all platforms):
-```bash
-uvicorn fastapi_app:app --host 0.0.0.0 --port 8000
-```
+cd server  
+python3 fastapi_app.py  
 
-API Endpoints:
-- `GET /api/list` - List files
-- `GET /api/get?file=<filename>` - Download file
-- `POST /api/put` - Upload file (multipart/form-data)
-- `POST /api/resume` - Resume transfer (JSON body: `{file, offset, direction}`)
+Windows:
 
-### 4. Use the React Frontend
+cd server  
+python fastapi_app.py  
 
-Start the React app:
-```bash
-cd frontend
-npm start
-```
+Using uvicorn:
 
-Open http://localhost:3000 in your browser.
+uvicorn fastapi_app:app --host 0.0.0.0 --port 8000  
+
+Endpoints:
+
+| Method | Endpoint | Description |
+|--------|---------|-------------|
+| GET | /api/list | List files |
+| GET | /api/get?file=<filename> | Download |
+| POST | /api/put | Upload |
+| POST | /api/resume | Resume |
+
+---
+
+### 4. React Frontend
+
+cd frontend  
+npm start  
+
+Open:
+
+http://localhost:3000  
 
 Features:
-- View server file list
-- Upload files with progress bar
-- Download files with checksum verification
-- Automatic refresh after operations
 
-### 5. Run Automated Tests
+- File list  
+- Upload progress  
+- Download with checksum  
+- Auto refresh  
 
-**Linux/macOS:**
-```bash
-cd demo_scripts
-chmod +x run_tests.sh
-./run_tests.sh
-```
+---
 
-**Windows:**
-```cmd
-cd demo_scripts
-run_tests.bat
-```
+### 5. Automated Tests
 
-**Simple Python Test:**
+Linux / macOS:
 
-**Linux/macOS:**
-```bash
-cd server
-python3 test_simple.py
-```
+cd demo_scripts  
+chmod +x run_tests.sh  
+./run_tests.sh  
 
-**Windows:**
-```cmd
-cd server
-python test_simple.py
-```
+Windows:
 
-The test scripts will:
-1. Create test files
-2. Start the TCP server
-3. Test PUT, LIST, GET operations
-4. Test RESUME functionality
-5. Generate `transcript.txt` with results
+cd demo_scripts  
+run_tests.bat  
 
-## Testing Instructions
+---
 
-### Required Test Scenarios
+Simple Python Test:
 
-1. **PUT Operation**
-   - Upload a file using CLI or frontend
-   - Verify SHA256 checksum matches
-   - Check file appears in server storage
+Linux / macOS:
 
-2. **GET Operation**
-   - Download a file from server
-   - Verify SHA256 checksum matches original
-   - Compare file contents byte-by-byte
+cd server  
+python3 test_simple.py  
 
-3. **RESUME Operation**
-   - Start uploading a large file
-   - Interrupt the transfer (Ctrl+C or kill process)
-   - Resume from the last offset
-   - Verify final file matches original checksum
+Windows:
 
-### Manual Test Commands
+cd server  
+python test_simple.py  
 
-See `demo_scripts/demo_commands.txt` for detailed manual testing instructions.
+---
 
-### Expected Output
+## 🧪 Testing Instructions
 
-After running tests, you should see:
-- Files successfully uploaded with SHA256 checksums
-- Files successfully downloaded with matching checksums
-- Resume operations completing partial transfers
-- All operations logged in `server/logs/server.log`
+PUT:
 
-## Implementation Details
+- Upload a file  
+- Verify SHA256  
+- Check storage  
 
-### Server Features
-- **Async I/O**: Uses `asyncio` for concurrent client handling
-- **Safe Writes**: Writes to `.part` temporary files, renames on success
-- **Checksum Verification**: SHA256 computed during streaming
-- **Error Handling**: Graceful error messages via `E` message type
-- **Logging**: All operations logged with timestamps
+GET:
 
-### Client Library Features
-- **Synchronous API**: Easy to use in scripts and HTTP wrappers
-- **Automatic Reconnection**: Each function manages its own connection
-- **Progress Tracking**: Can be extended for progress callbacks
-- **Checksum Validation**: Verifies server checksums match client
+- Download file  
+- Compare checksum  
+- Compare bytes  
 
-### Protocol Compliance
-- ✅ 4-byte big-endian length prefix
-- ✅ 1-byte message type
-- ✅ All message types implemented (L, G, P, R, Q, O, E, F, S)
-- ✅ SHA256 checksums for integrity
-- ✅ Safe file writes (temp + rename)
-- ✅ Resume support with byte offsets
-- ✅ Configurable chunk size (default 4096)
+RESUME:
 
-## Configuration
+- Interrupt upload  
+- Resume  
+- Verify checksum  
 
-### Environment Variables
-- `FT_ECHO_HOST`: TCP server host (default: localhost)
-- `FT_ECHO_PORT`: TCP server port (default: 9000)
+Manual tests:
 
-### Server Configuration
-Edit `server/tcp_server.py`:
-- `DEFAULT_PORT`: Server listening port
-- `CHUNK_SIZE`: Transfer chunk size (bytes)
-- `STORAGE_DIR`: Directory for stored files
+demo_scripts/demo_commands.txt  
 
-## Troubleshooting
+---
 
-### Server won't start
-- Check if port is already in use: `lsof -i :9000` (Unix) or `netstat -an | findstr 9000` (Windows)
-- Check Python version: `python3 --version` (needs 3.10+)
+## 📤 Expected Output
 
-### Connection refused
-- Ensure TCP server is running
-- Check firewall settings
-- Verify host and port are correct
+- Upload success  
+- Download success  
+- Resume success  
+- Logs in server/logs/server.log  
 
-### Checksum mismatch
-- Verify file wasn't corrupted during transfer
-- Check network stability
-- Ensure both client and server use same chunk size
+---
 
-### Resume not working
-- Verify partial file (`.part`) exists in storage directory
-- Check offset matches actual file size
-- Ensure same filename is used for resume
+## ⚙ Implementation Details
 
-## License
+Server:
 
-This project is created for educational purposes as part of a Computer Networks.
+- asyncio  
+- Safe .part writes  
+- SHA256 checks  
+- Error handling  
+- Logging  
 
-## Author
+Client:
 
-FT-Echo Project - TCP File Transfer Implementation
+- Sync API  
+- Auto reconnect  
+- FastAPI support  
+- Checksum validation  
 
+---
+
+## ✅ Protocol Compliance
+
+- 4-byte length prefix  
+- 1-byte type  
+- All message types  
+- SHA256 integrity  
+- Resume support  
+- Chunk size = 4096  
+
+---
+
+## ⚙ Configuration
+
+Environment:
+
+FT_ECHO_HOST = localhost  
+FT_ECHO_PORT = 9000  
+
+Server settings:
+
+DEFAULT_PORT  
+CHUNK_SIZE  
+STORAGE_DIR  
+
+---
+
+## 🛑 Troubleshooting
+
+Server won’t start:
+
+- Unix: lsof -i :9000  
+- Windows: netstat -an | findstr 9000  
+- Python: python3 --version  
+
+Connection refused:
+
+- Check server  
+- Check firewall  
+- Check host/port  
+
+Checksum mismatch:
+
+- Network stability  
+- Chunk size  
+- File integrity  
+
+Resume broken:
+
+- .part file exists  
+- Correct offset  
+- Same filename  
+
+---
+
+## 📄 License
+
+MIT License
+
+Copyright (c) 2026 Mukesh
+
+Permission is hereby granted, free of charge, to any person obtaining a copy  
+of this software and associated documentation files (the "Software"), to deal  
+in the Software without restriction, including without limitation the rights  
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell  
+copies of the Software, and to permit persons to whom the Software is  
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in  
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+
+---
+
+## 👤 Author
+
+Mukesh Ugrapalli  
+FT-Echo Project – TCP File Transfer Implementation  
