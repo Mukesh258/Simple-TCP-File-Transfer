@@ -310,7 +310,7 @@ Edit `server/tcp_server.py`:
 
 ## License
 
-This project is created for educational purposes as part of a Computer Networks lab exercise.
+This project is created for educational purposes as part of a Computer Networks.
 
 ## Author
 
